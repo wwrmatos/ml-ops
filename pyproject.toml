@@ -12,7 +12,7 @@ dependencies = [
 dev = ["pytest==8.3.3"]
 
 [project.scripts]
-churn-train = "churn.model:main"
+churn-train = "churn.model:cli"
 
 [build-system]
 requires = ["hatchling"]

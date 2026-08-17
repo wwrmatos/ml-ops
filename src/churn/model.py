@@ -47,5 +47,11 @@ def main(config: Settings = settings) -> dict[str, float]:
     return metrics
 
 
-if __name__ == "__main__":
+def cli() -> None:
+    # entrypoint do console_script: nao pode devolver valor, senao o
+    # sys.exit(cli()) do wrapper imprime o dict e sai com codigo 1
     main()
+
+
+if __name__ == "__main__":
+    cli()
