@@ -1,6 +1,5 @@
 import pandas as pd
 
-# valores usados no script original, mantidos para nao alterar o modelo
 PREENCHIMENTO_TOTAL_CHARGES = 2200.0
 DIVISORES_ESCALA = {
     "MonthlyCharges": 118.0,

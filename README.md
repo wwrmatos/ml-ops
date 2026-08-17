@@ -46,20 +46,3 @@ CHURN_DATA_PATH=data/outro.csv CHURN_N_ESTIMATORS=500 uv run churn-train
 ```bash
 uv run pytest
 ```
-
-## O que mudou em relação ao script original
-
-O modelo treinado é **o mesmo** do script original: `fillna(2200)`, a
-normalização manual por constantes, o split e a floresta continuam sem
-`random_state`. O que mudou é só o entorno:
-
-- caminho absoluto da máquina da autora → `config.py` (env/`.env`)
-- script único → módulos com funções puras e testadas
-- `LabelEncoder` reusado entre colunas → codificação por coluna (mesmos códigos,
-  sem o estado compartilhado)
-- só acurácia → accuracy, precision, recall, f1, roc_auc (medição, não afeta o
-  `fit`)
-- nome de arquivo versionado à mão (`modelo_final_v3_ok.pkl`) → `config.model_path`
-
-Como não há `random_state`, cada execução dá uma acurácia um pouco diferente —
-isso é fiel ao original e foi uma decisão consciente.

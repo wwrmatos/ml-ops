@@ -12,7 +12,6 @@ from churn.features import construir_features
 
 
 def split(X: pd.DataFrame, y: pd.Series, config: Settings):
-    # sem random_state/stratify: mesmo comportamento do script original
     return train_test_split(X, y, test_size=config.test_size)
 
 
@@ -48,8 +47,6 @@ def main(config: Settings = settings) -> dict[str, float]:
 
 
 def cli() -> None:
-    # entrypoint do console_script: nao pode devolver valor, senao o
-    # sys.exit(cli()) do wrapper imprime o dict e sai com codigo 1
     main()
 
 
