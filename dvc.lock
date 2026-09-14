@@ -1,0 +1,19 @@
+schema: '2.0'
+stages:
+  treino:
+    cmd: uv run churn-train
+    deps:
+    - path: data/churn.csv
+      hash: md5
+      md5: 9163794ac63c1d64794702dfae2840c3
+      size: 988716
+    - path: src/churn
+      hash: md5
+      md5: 6e40255b363463882a474674b7d488f1.dir
+      size: 23320
+      nfiles: 15
+    outs:
+    - path: models/model.pkl
+      hash: md5
+      md5: f26e6e9cd56054a23926b918d22dc1aa
+      size: 34455793
