@@ -5,8 +5,8 @@ stages:
     deps:
     - path: data/churn.csv
       hash: md5
-      md5: 9163794ac63c1d64794702dfae2840c3
-      size: 988716
+      md5: 3b6166b0f8611b2c637865e3e9f5cceb
+      size: 980207
     - path: src/churn
       hash: md5
       md5: 6e40255b363463882a474674b7d488f1.dir
@@ -15,5 +15,5 @@ stages:
     outs:
     - path: models/model.pkl
       hash: md5
-      md5: f26e6e9cd56054a23926b918d22dc1aa
-      size: 34455793
+      md5: 28178a8a135f4adf467400ee98b52996
+      size: 34721233
