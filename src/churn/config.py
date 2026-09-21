@@ -16,6 +16,10 @@ class Settings(BaseSettings):
 
     test_size: float = 0.25
     n_estimators: int = 200
+    random_state: int = 42
+
+    mlflow_experiment: str = "churn"
+    mlflow_tracking_uri: str = "sqlite:///mlflow.db"
 
 
 settings = Settings()
