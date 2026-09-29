@@ -6,7 +6,8 @@ dependencies = [
     "pandas==2.2.3",
     "scikit-learn==1.5.2",
     "pydantic-settings==2.6.1",
-    "pandera[pandas]==0.22.1"
+    "pandera[pandas]==0.22.1",
+    "mlflow>=3.16.1",
 ]
 
 [dependency-groups]

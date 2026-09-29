@@ -9,3 +9,7 @@ models/
 data/*
 !data/.gitkeep
 !data/*.dvc
+
+mlruns/
+mlartifacts/
+mlflow.db
