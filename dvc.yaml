@@ -1,6 +1,6 @@
 stages:
   treino:
-    cmd: uv run churn-train
+    cmd: python -m churn.model
     deps:
     - data/churn.csv
     - src/churn

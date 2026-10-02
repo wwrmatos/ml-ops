@@ -16,6 +16,13 @@ class Settings(BaseSettings):
 
     test_size: float = 0.25
     n_estimators: int = 200
+    max_depth: int | None = 8
+    random_state: int = 42
+
+    tracking_uri: str = "sqlite:///mlflow.db"
+    experiment_name: str = "churn"
+    registered_model_name: str = "churn"
+    min_roc_auc: float = 0.80
 
 
 settings = Settings()

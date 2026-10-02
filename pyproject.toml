@@ -6,14 +6,21 @@ dependencies = [
     "pandas==2.2.3",
     "scikit-learn==1.5.2",
     "pydantic-settings==2.6.1",
-    "pandera[pandas]==0.22.1"
+    "pandera[pandas]==0.22.1",
+    "mlflow==3.16.1",
+    "pyyaml==6.0.3",
 ]
 
 [dependency-groups]
-dev = ["pytest==8.3.3"]
+dev = [
+    "dvc[gdrive]==3.67.1",
+    "pytest==8.3.3",
+]
 
 [project.scripts]
 churn-train = "churn.model:cli"
+churn-experiments = "churn.experiments:main"
+churn-promote = "churn.registry:cli"
 
 [build-system]
 requires = ["hatchling"]
