@@ -8,6 +8,8 @@ dependencies = [
     "pydantic-settings==2.6.1",
     "pandera[pandas]==0.22.1",
     "mlflow>=3.16.1",
+    "fastapi>=0.141.1",
+    "uvicorn>=0.53.0",
 ]
 
 [dependency-groups]
