@@ -10,6 +10,7 @@ dependencies = [
     "mlflow>=3.16.1",
     "fastapi>=0.141.1",
     "uvicorn>=0.53.0",
+    "streamlit>=1.66.1",
 ]
 
 [dependency-groups]

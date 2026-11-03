@@ -7,6 +7,7 @@ COPY pyproject.toml uv.lock ./
 RUN uv sync --locked --no-install-project
 
 COPY src/ ./src/
+COPY .streamlit/ ./.streamlit/
 RUN uv sync --locked
 
 ENV PATH="/app/.venv/bin:$PATH"

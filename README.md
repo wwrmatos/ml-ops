@@ -12,11 +12,13 @@ src/churn/
 ├── evaluate.py   # métricas
 ├── experiments.py# grid rastreado no MLflow
 ├── lineage.py    # data_md5() e git_commit() para linhagem
-└── config.py     # Pydantic settings
+├── config.py     # Pydantic settings
+└── app.py        # interface Streamlit
 tests/            # pytest
 data/             # dataset (versionado depois: DVC)
 pyproject.toml    # deps travadas (uv)
 uv.lock
+.streamlit/       # tema do app
 ```
 
 ## Setup
@@ -41,6 +43,24 @@ Qualquer setting pode ser sobrescrito por variável de ambiente com o prefixo
 
 ```bash
 CHURN_DATA_PATH=data/outro.csv CHURN_N_ESTIMATORS=500 uv run churn-train
+```
+
+## Interface Streamlit
+
+Depois de treinar (`uv run churn-train`), suba o app:
+
+```bash
+uv run python -m streamlit run src/churn/app.py
+```
+
+Abra <http://localhost:8501>, digite um `customerID` (ex.: `SYN-00000`) e veja a
+probabilidade de churn. O app carrega o modelo local e consulta a mesma base
+usada no treino.
+
+Ou via Docker Compose:
+
+```bash
+docker compose up --build app
 ```
 
 ## Testes
