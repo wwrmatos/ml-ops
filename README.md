@@ -13,7 +13,8 @@ src/churn/
 ├── experiments.py# grid rastreado no MLflow
 ├── lineage.py    # data_md5() e git_commit() para linhagem
 ├── config.py     # Pydantic settings
-└── app.py        # interface Streamlit
+├── api.py        # API FastAPI (serve o modelo)
+└── app.py        # interface Streamlit (consome a API)
 tests/            # pytest
 data/             # dataset (versionado depois: DVC)
 pyproject.toml    # deps travadas (uv)
@@ -45,22 +46,26 @@ Qualquer setting pode ser sobrescrito por variável de ambiente com o prefixo
 CHURN_DATA_PATH=data/outro.csv CHURN_N_ESTIMATORS=500 uv run churn-train
 ```
 
-## Interface Streamlit
+## API e interface Streamlit
 
-Depois de treinar (`uv run churn-train`), suba o app:
+O backend é uma API FastAPI (`src/churn/api.py`) que carrega o modelo treinado e
+expõe `GET /predict/{customer_id}` (e `GET /customers` com IDs de exemplo):
 
 ```bash
-uv run python -m streamlit run src/churn/app.py
+uv run uvicorn churn.api:app --port 8000   # docs em http://localhost:8000/docs
 ```
 
-Abra <http://localhost:8501>, digite um `customerID` (ex.: `SYN-00000`) e veja a
-probabilidade de churn. O app carrega o modelo local e consulta a mesma base
-usada no treino.
-
-Ou via Docker Compose:
+O frontend (Streamlit) **não** carrega o modelo — ele consulta a API. A URL do
+backend vem de `CHURN_API_URL` (padrão `http://localhost:8000`):
 
 ```bash
-docker compose up --build app
+uv run python -m streamlit run src/churn/app.py   # http://localhost:8501
+```
+
+Ou os dois juntos via Docker Compose (o app recebe `CHURN_API_URL=http://api:8000`):
+
+```bash
+docker compose up --build
 ```
 
 ## Testes
