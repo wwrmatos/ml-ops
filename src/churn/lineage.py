@@ -19,9 +19,12 @@ def data_md5(caminho_dados: Path = Path("data/churn.csv")) -> str:
 
 def git_commit() -> str:
     """Hash do commit atual - a versao exata do codigo."""
-    resultado = subprocess.run(
-        ["git", "rev-parse", "--short", "HEAD"],
-        capture_output=True,
-        text=True,
-    )
+    try:
+        resultado = subprocess.run(
+            ["git", "rev-parse", "--short", "HEAD"],
+            capture_output=True,
+            text=True,
+        )
+    except FileNotFoundError:
+        return "desconhecido"
     return resultado.stdout.strip() or "desconhecido"
