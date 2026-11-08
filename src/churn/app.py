@@ -1,11 +1,9 @@
 import html
 
+import requests
 import streamlit as st
 
 from churn.config import settings
-from churn.data import carregar_dados, validar_dados
-from churn.features import construir_features
-from churn.model import load_model
 
 CSS = """
 <style>
@@ -392,29 +390,27 @@ HERO = """
 """
 
 
-@st.cache_resource
-def carregar_base():
-    """Carrega dados, features e modelo uma única vez por sessão."""
-    df = validar_dados(carregar_dados(settings.data_path))
-    X, _ = construir_features(df, settings.target, settings.id_column)
-    modelo = load_model(settings.model_path)
-    # features.py codifica o target (No=0, Yes=1); o modelo usa esse código.
-    codigo_yes = list(df[settings.target].astype("category").cat.categories).index("Yes")
-    return df, X, modelo, codigo_yes
+@st.cache_data(ttl=300)
+def carregar_exemplos() -> list:
+    """Pede à API os customerIDs de exemplo (mesma base usada no treino)."""
+    resp = requests.get(f"{settings.api_url}/customers", timeout=10)
+    resp.raise_for_status()
+    return resp.json()["customer_ids"]
 
 
-def prever(customer_id, df, X, modelo, codigo_yes):
-    encontrados = df[df[settings.id_column] == customer_id]
-    if encontrados.empty:
+def prever(customer_id):
+    """Consulta a probabilidade de churn na API."""
+    try:
+        resp = requests.get(f"{settings.api_url}/predict/{customer_id}", timeout=10)
+    except requests.RequestException:
+        return None, "não consegui falar com a API (backend no ar?)"
+
+    if resp.status_code == 404:
         return None, "cliente não encontrado"
+    if resp.status_code != 200:
+        return None, f"erro na API (HTTP {resp.status_code})"
 
-    indice = encontrados.index[0]
-    if indice not in X.index:
-        return None, "cliente tem dados inválidos"
-
-    probabilidades = modelo.predict_proba(X.loc[[indice]])[0]
-    prob = float(probabilidades[list(modelo.classes_).index(codigo_yes)])
-    return prob, None
+    return float(resp.json()["churn_probability"]), None
 
 
 def consultar():
@@ -474,8 +470,15 @@ def main():
     st.markdown(CSS, unsafe_allow_html=True)
     st.markdown(HERO, unsafe_allow_html=True)
 
-    df, X, modelo, codigo_yes = carregar_base()
-    exemplos = df.loc[X.index, settings.id_column].drop_duplicates().head(4).tolist()
+    try:
+        exemplos = carregar_exemplos()
+    except requests.RequestException:
+        exemplos = []
+        st.markdown(
+            '<div class="feedback">Sem conexão com a API — suba o backend primeiro '
+            "(<code>docker compose up api</code>).</div>",
+            unsafe_allow_html=True,
+        )
 
     with st.container(border=True):
         col_input, col_botao = st.columns([3, 1.15], vertical_alignment="bottom")
@@ -508,7 +511,7 @@ def main():
                 unsafe_allow_html=True,
             )
         elif alvo:
-            prob, erro = prever(alvo, df, X, modelo, codigo_yes)
+            prob, erro = prever(alvo)
 
             if erro:
                 st.markdown(
@@ -519,8 +522,8 @@ def main():
                 cartao_resultado(alvo, prob)
 
     st.markdown(
-        '<p class="foot">Probabilidade calculada pelo modelo treinado neste projeto. '
-        "Uso demonstrativo, não substitui análise de negócio.</p>",
+        '<p class="foot">Probabilidade servida pela Churn API, com o modelo treinado '
+        "neste projeto. Uso demonstrativo, não substitui análise de negócio.</p>",
         unsafe_allow_html=True,
     )
 

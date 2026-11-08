@@ -32,6 +32,14 @@ def favicon() -> Response:
     return Response(status_code=204)
 
 
+@app.get("/customers")
+def customers() -> dict:
+    """Alguns customerIDs válidos para povoar os exemplos do frontend."""
+    ids, X, _ = _base()
+    exemplos = ids.loc[X.index].drop_duplicates().head(4).tolist()
+    return {"customer_ids": exemplos}
+
+
 @app.get("/predict/{customer_id}")
 def predict(customer_id: str) -> dict:
     """Probabilidade de churn de um cliente pelo customerID."""

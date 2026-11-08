@@ -9,6 +9,10 @@ services:
 
   app:
     build: .
+    depends_on:
+      - api
+    environment:
+      - CHURN_API_URL=http://api:8000
     volumes:
       - ./src:/app/src
       - ./data:/app/data
@@ -16,3 +20,13 @@ services:
     ports:
       - "8501:8501"
     command: python -m streamlit run src/churn/app.py --server.address 0.0.0.0
+
+  api:
+    build: .
+    volumes:
+      - ./src:/app/src
+      - ./data:/app/data
+      - ./models:/app/models
+    ports:
+      - "8000:8000"
+    command: uvicorn churn.api:app --host 0.0.0.0 --port 8000

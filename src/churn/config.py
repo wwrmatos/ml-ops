@@ -10,6 +10,7 @@ class Settings(BaseSettings):
 
     data_path: Path = Path("data/churn.csv")
     model_path: Path = Path("models/model.pkl")
+    api_url: str = "http://localhost:8000"
 
     target: str = "Churn"
     id_column: str = "customerID"
