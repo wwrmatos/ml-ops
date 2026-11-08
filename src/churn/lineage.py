@@ -1,3 +1,4 @@
+import hashlib
 import subprocess
 from pathlib import Path
 
@@ -5,10 +6,15 @@ import yaml
 
 
 def data_md5(caminho_dados: Path = Path("data/churn.csv")) -> str:
-    """Le o md5 do dado versionado pelo DVC - a versao exata do churn.csv."""
+    """MD5 da versao exata do churn.csv.
+
+    Se o dado ainda for versionado pelo DVC, le o hash do ponteiro .dvc;
+    caso contrario, calcula o hash direto do arquivo (dado no git)."""
     ponteiro = Path(f"{caminho_dados}.dvc")
-    doc = yaml.safe_load(ponteiro.read_text())
-    return doc["outs"][0]["md5"]
+    if ponteiro.exists():
+        doc = yaml.safe_load(ponteiro.read_text())
+        return doc["outs"][0]["md5"]
+    return hashlib.md5(Path(caminho_dados).read_bytes()).hexdigest()
 
 
 def git_commit() -> str:
