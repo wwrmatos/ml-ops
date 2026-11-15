@@ -98,3 +98,48 @@ CHURN_MLFLOW_TRACKING_URI=http://mlflow.local:5000 uv run churn-train
 
 `mlflow.db`, `mlruns/` e `mlartifacts/` são gitignored — experimentos locais não
 vão para o Git.
+
+## Deploy na EC2
+
+Na instância a stack sobe via Docker Compose: `app` (Streamlit, :8501), `api`
+(FastAPI, :8000) e `mlflow` (tracking server, :5000), todos com
+`restart: unless-stopped` — voltam sozinhos após reboot. O banco e os artefatos
+do MLflow ficam persistidos em `./mlflow/` (volume).
+
+### A instância não treina
+
+A instância é uma t3.micro (~900 MB de RAM + 2 GB de swap): serve predição e
+tracking, mas **treinar nela estoura a memória**. O fluxo é treinar localmente
+e publicar o resultado:
+
+1. **Treine localmente, rastreando no MLflow da EC2:**
+
+   ```bash
+   CHURN_MLFLOW_TRACKING_URI=http://<ip-da-ec2>:5000 uv run churn-train
+   ```
+
+   Params, métricas e o modelo vão pro MLflow remoto (UI em
+   `http://<ip-da-ec2>:5000`).
+
+2. **Suba o modelo treinado para a instância:**
+
+   ```bash
+   scp -i churn-key.pem models/model.pkl ubuntu@<ip-da-ec2>:~/ml-ops/models/
+   ```
+
+   A API mantém o modelo e a base em cache (`lru_cache` em `src/churn/api.py`),
+   então depois de copiar o arquivo reinicie o container:
+
+   ```bash
+   ssh -i churn-key.pem ubuntu@<ip-da-ec2> "sudo docker restart ml-ops-api-1"
+   ```
+
+### Fonte de dados: CSV ou Postgres
+
+Sem configuração extra, a API e o treino leem `data/churn.csv`. Definindo
+`CHURN_DATABASE_URL` (ex.:
+`postgresql+psycopg://churn:<senha>@<ip-privado>:5432/churn`), `carregar_dados`
+passa a ler a tabela `customers` do Postgres — as colunas em `snake_case` do
+banco são renomeadas de volta pros nomes do CSV dentro da consulta, então o
+restante do pipeline não muda. No deploy da EC2, a URL fica no `.env` da
+instância (fora do git) e o compose a injeta no serviço `api`.
