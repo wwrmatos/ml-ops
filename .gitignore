@@ -12,6 +12,7 @@ data/*
 
 mlruns/
 mlartifacts/
+mlflow/
 mlflow.db
 mlflow.old.db
 

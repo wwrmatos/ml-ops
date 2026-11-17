@@ -1,6 +1,10 @@
 services:
   treino:
     build: .
+    depends_on:
+      - mlflow
+    environment:
+      - CHURN_MLFLOW_TRACKING_URI=http://mlflow:5000
     volumes:
       - ./src:/app/src
       - ./data:/app/data
@@ -20,9 +24,12 @@ services:
     ports:
       - "8501:8501"
     command: python -m streamlit run src/churn/app.py --server.address 0.0.0.0
+    restart: unless-stopped
 
   api:
     build: .
+    environment:
+      - CHURN_DATABASE_URL=${CHURN_DATABASE_URL:-}
     volumes:
       - ./src:/app/src
       - ./data:/app/data
@@ -30,3 +37,13 @@ services:
     ports:
       - "8000:8000"
     command: uvicorn churn.api:app --host 0.0.0.0 --port 8000
+    restart: unless-stopped
+
+  mlflow:
+    build: .
+    volumes:
+      - ./mlflow:/mlflow
+    ports:
+      - "5000:5000"
+    command: mlflow server --host 0.0.0.0 --port 5000 --workers 2 --backend-store-uri sqlite:////mlflow/mlflow.db --artifacts-destination /mlflow/artifacts --allowed-hosts '*'
+    restart: unless-stopped
